@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+FrameLayout - 简单的帧布局，适合单个子视图
+background: 黑色背景，避免加载时的白色闪烁
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <!-- 
+    PhotoView - 第三方图片查看库，支持缩放、平移、双击等手势
+    adjustViewBounds: 保持图片比例
+    scaleType: fitCenter确保图片完整显示
+    -->
+    <com.github.chrisbanes.photoview.PhotoView
+        android:id="@+id/photoView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter" />
+
+</FrameLayout>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+CoordinatorLayout - 协调者布局，用于处理子视图之间的交互
+background: 黑色背景提供沉浸式阅读体验
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <!-- 
+    ViewPager2 - 现代ViewPager，支持横向和纵向滚动
+    用于显示漫画页面，支持左右滑动切换
+    -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- 
+    控制层覆盖 - 透明的覆盖层，用于捕获点击事件显示/隐藏控制栏
+    不拦截ViewPager的滑动事件，只处理点击
+    -->
+    <View
+        android:id="@+id/controlOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <!-- 
+    顶部控制栏 - 使用AppBarLayout实现Material Design效果
+    background: 半透明黑色，确保文字可读性
+    layout_behavior: 与CoordinatorLayout配合实现滑动隐藏
+    -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/controlLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#CC000000"
+        android:visibility="gone"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+        <!-- 
+        Toolbar - 替代ActionBar，提供灵活的导航和操作按钮
+        background: 透明，显示父布局的半透明背景
+        -->
+        <androidx.appcompat.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/transparent"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+            <!-- 返回按钮 -->
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_arrow_back_white_24dp"
+                android:contentDescription="@string/back"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+
+            <!-- 页面指示器 -->
+            <TextView
+                android:id="@+id/tvPageIndicator"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="1/1"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:gravity="center" />
+
+            <!-- 章节列表按钮 -->
+            <ImageButton
+                android:id="@+id/btnChapters"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_list_white_24dp"
+                android:contentDescription="@string/chapter_list"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+
+            <!-- 设置按钮 -->
+            <ImageButton
+                android:id="@+id/btnSettings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_settings_white_24dp"
+                android:contentDescription="@string/settings"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+
+        </androidx.appcompat.widget.Toolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- 
+    底部控制栏 - 包含上一页/下一页按钮
+    layout_gravity: 固定在底部
+    background: 与顶部控制栏一致的半透明黑色
+    -->
+    <LinearLayout
+        android:id="@+id/bottomControlLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#CC000000"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:visibility="gone"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+        <!-- 
+        上一页按钮 - 使用MaterialButton确保一致的外观
+        layout_weight: 等分宽度
+        -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPrev"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/previous_page"
+            android:textColor="@android:color/white"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_marginEnd="8dp" />
+
+        <!-- 下一页按钮 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnNext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/next_page"
+            android:textColor="@android:color/white"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_marginStart="8dp" />
+
+    </LinearLayout>
+
+    <!-- 
+    加载进度条 - 居中显示，在加载章节时显示
+    -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

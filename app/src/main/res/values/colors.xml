@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 主题色 -->
+    <color name="color_primary">#FF6F00</color>
+    <color name="color_primary_dark">#E65100</color>
+    <color name="color_accent">#FF9800</color>
+
+    <!-- 底部导航颜色 -->
+    <color name="bottom_nav_color">@color/selector_bottom_nav</color>
+    
+    <selector xmlns:android="http://schemas.android.com/apk/res/android">
+        <item android:color="@color/color_primary" android:state_checked="true" />
+        <item android:color="#757575" android:state_checked="false" />
+    </selector>
+
+    <!-- 文字颜色 -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+    
+    <!-- 背景色 -->
+    <color name="background_light">#FFFFFF</color>
+    <color name="background_dark">#121212</color>
+    
+    <!-- 特殊颜色 -->
+    <color name="color_update">#F44336</color>
+    <color name="color_category">#FF6F00</color>
+</resources>
