@@ -1,0 +1,244 @@
+<!-- nav_graph.xml - 完整版本 -->
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/mainFragment">
+
+    <!-- 主页面 -->
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.comicapp.ui.main.MainFragment"
+        android:label="主页"
+        tools:layout="@layout/fragment_main">
+
+        <action
+            android:id="@+id/action_main_to_search"
+            app:destination="@id/searchFragment" />
+
+        <action
+            android:id="@+id/action_main_to_categories"
+            app:destination="@id/categoriesFragment" />
+
+        <action
+            android:id="@+id/action_main_to_week"
+            app:destination="@id/weekFragment" />
+
+        <action
+            android:id="@+id/action_main_to_blogs"
+            app:destination="@id/blogsFragment" />
+
+        <action
+            android:id="@+id/action_main_to_library"
+            app:destination="@id/libraryFragment" />
+
+        <action
+            android:id="@+id/action_main_to_movies"
+            app:destination="@id/moviesFragment" />
+
+        <action
+            android:id="@+id/action_main_to_games"
+            app:destination="@id/gamesFragment" />
+
+        <action
+            android:id="@+id/action_main_to_member"
+            app:destination="@id/memberFragment" />
+
+        <action
+            android:id="@+id/action_main_to_daily"
+            app:destination="@id/dailyFragment" />
+
+        <action
+            android:id="@+id/action_main_to_forum"
+            app:destination="@id/forumFragment" />
+
+    </fragment>
+
+    <!-- 搜索页面 -->
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.comicapp.ui.search.SearchFragment"
+        android:label="搜索"
+        tools:layout="@layout/fragment_search">
+
+        <argument
+            android:name="initialQuery"
+            android:defaultValue="" 
+            app:argType="string" />
+
+        <action
+            android:id="@+id/action_search_to_comic_detail"
+            app:destination="@id/comicDetailFragment" />
+
+        <action
+            android:id="@+id/action_search_back"
+            app:popUpTo="@id/mainFragment"
+            app:popUpToInclusive="false" />
+
+    </fragment>
+
+    <!-- 漫画详情页 -->
+    <fragment
+        android:id="@+id/comicDetailFragment"
+        android:name="com.comicapp.ui.detail.ComicDetailFragment"
+        android:label="漫画详情"
+        tools:layout="@layout/fragment_comic_detail">
+
+        <argument
+            android:name="comicId"
+            app:argType="string" />
+
+        <action
+            android:id="@+id/action_detail_to_read"
+            app:destination="@id/readActivity" />
+
+        <action
+            android:id="@+id/action_detail_to_download"
+            app:destination="@id/downloadFragment" />
+
+    </fragment>
+
+    <!-- 阅读Activity -->
+    <activity
+        android:id="@+id/readActivity"
+        android:name="com.comicapp.ui.read.ReadActivity"
+        android:label="阅读" />
+
+    <!-- 下载页面 -->
+    <fragment
+        android:id="@+id/downloadFragment"
+        android:name="com.comicapp.ui.download.DownloadFragment"
+        android:label="下载"
+        tools:layout="@layout/fragment_download" />
+
+    <!-- 博客页面 -->
+    <fragment
+        android:id="@+id/blogsFragment"
+        android:name="com.comicapp.ui.blogs.BlogsFragment"
+        android:label="博客"
+        tools:layout="@layout/fragment_blogs">
+
+        <action
+            android:id="@+id/action_blogs_to_detail"
+            app:destination="@id/blogDetailFragment" />
+
+    </fragment>
+
+    <!-- 博客详情 -->
+    <fragment
+        android:id="@+id/blogDetailFragment"
+        android:name="com.comicapp.ui.blogs.BlogDetailFragment"
+        android:label="博客详情"
+        tools:layout="@layout/fragment_blog_detail" />
+
+    <!-- 书库页面 -->
+    <fragment
+        android:id="@+id/libraryFragment"
+        android:name="com.comicapp.ui.library.LibraryFragment"
+        android:label="书库"
+        tools:layout="@layout/fragment_library">
+
+        <action
+            android:id="@+id/action_library_to_list"
+            app:destination="@id/libraryListFragment" />
+
+    </fragment>
+
+    <!-- 书库列表 -->
+    <fragment
+        android:id="@+id/libraryListFragment"
+        android:name="com.comicapp.ui.library.LibraryListFragment"
+        android:label="书库列表"
+        tools:layout="@layout/fragment_library_list">
+
+        <action
+            android:id="@+id/action_library_list_to_detail"
+            app:destination="@id/libraryDetailFragment" />
+
+    </fragment>
+
+    <!-- 书库详情 -->
+    <fragment
+        android:id="@+id/libraryDetailFragment"
+        android:name="com.comicapp.ui.library.LibraryDetailFragment"
+        android:label="书库详情"
+        tools:layout="@layout/fragment_library_detail" />
+
+    <!-- 分类页面 -->
+    <fragment
+        android:id="@+id/categoriesFragment"
+        android:name="com.comicapp.ui.categories.CategoriesFragment"
+        android:label="分类"
+        tools:layout="@layout/fragment_categories" />
+
+    <!-- 游戏页面 -->
+    <fragment
+        android:id="@+id/gamesFragment"
+        android:name="com.comicapp.ui.games.GamesFragment"
+        android:label="游戏"
+        tools:layout="@layout/fragment_games" />
+
+    <!-- 视频页面 -->
+    <fragment
+        android:id="@+id/moviesFragment"
+        android:name="com.comicapp.ui.movies.MoviesFragment"
+        android:label="视频"
+        tools:layout="@layout/fragment_movies">
+
+        <action
+            android:id="@+id/action_movies_to_player"
+            app:destination="@id/moviePlayerActivity" />
+
+    </fragment>
+
+    <!-- 视频播放Activity -->
+    <activity
+        android:id="@+id/moviePlayerActivity"
+        android:name="com.comicapp.ui.movies.MoviePlayerActivity"
+        android:label="视频播放"
+        android:theme="@style/FullScreenTheme" />
+
+    <!-- 会员页面 -->
+    <fragment
+        android:id="@+id/memberFragment"
+        android:name="com.comicapp.ui.member.MemberFragment"
+        android:label="会员中心"
+        tools:layout="@layout/fragment_member" />
+
+    <!-- 每日签到 -->
+    <fragment
+        android:id="@+id/dailyFragment"
+        android:name="com.comicapp.ui.daily.DailyFragment"
+        android:label="每日签到"
+        tools:layout="@layout/fragment_daily" />
+
+    <!-- 论坛页面 -->
+    <fragment
+        android:id="@+id/forumFragment"
+        android:name="com.comicapp.ui.forum.ForumFragment"
+        android:label="论坛"
+        tools:layout="@layout/fragment_forum" />
+
+    <!-- 每周必看 -->
+    <fragment
+        android:id="@+id/weekFragment"
+        android:name="com.comicapp.ui.week.WeekFragment"
+        android:label="每周必看"
+        tools:layout="@layout/fragment_week" />
+
+    <!-- 错误页面 -->
+    <fragment
+        android:id="@+id/errorFragment"
+        android:name="com.comicapp.ui.error.ErrorFragment"
+        android:label="错误"
+        tools:layout="@layout/fragment_error" />
+
+    <!-- 测试页面 -->
+    <fragment
+        android:id="@+id/testFragment"
+        android:name="com.comicapp.ui.test.TestFragment"
+        android:label="测试"
+        tools:layout="@layout/fragment_test" />
+
+</navigation>

@@ -1,28 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 主题色 -->
-    <color name="color_primary">#FF6F00</color>
-    <color name="color_primary_dark">#E65100</color>
-    <color name="color_accent">#FF9800</color>
-
-    <!-- 底部导航颜色 -->
-    <color name="bottom_nav_color">@color/selector_bottom_nav</color>
+    <!-- Material Design 颜色 -->
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
     
-    <selector xmlns:android="http://schemas.android.com/apk/res/android">
-        <item android:color="@color/color_primary" android:state_checked="true" />
-        <item android:color="#757575" android:state_checked="false" />
-    </selector>
-
-    <!-- 文字颜色 -->
-    <color name="text_primary">#212121</color>
-    <color name="text_secondary">#757575</color>
-    <color name="text_hint">#BDBDBD</color>
+    <!-- 基础颜色 -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
     
-    <!-- 背景色 -->
-    <color name="background_light">#FFFFFF</color>
-    <color name="background_dark">#121212</color>
-    
-    <!-- 特殊颜色 -->
-    <color name="color_update">#F44336</color>
-    <color name="color_category">#FF6F00</color>
+    <!-- 错误颜色 -->
+    <color name="error_color">#FFB00020</color>
 </resources>

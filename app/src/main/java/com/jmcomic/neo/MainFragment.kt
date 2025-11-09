@@ -1,203 +1,172 @@
-class MainFragment : BaseFragment<MainViewModel, FragmentMainBinding>() {
+// MainFragment.kt - 修复版本
+class MainFragment : Fragment() {
     
-    private lateinit var bannerAdapter: BannerAdapter
-    private lateinit var comicCarouselAdapter: ComicCarouselAdapter
-    private lateinit var comicListAdapter: ComicListAdapter
+    private lateinit var viewModel: MainViewModel
+    private lateinit var binding: FragmentMainBinding
     
-    override fun getViewBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentMainBinding {
-        return FragmentMainBinding.inflate(inflater, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentMainBinding.inflate(inflater, container, false)
+        return binding.root
     }
     
-    override fun getViewModel(): MainViewModel {
-        return ViewModelProvider(this)[MainViewModel::class.java]
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        
+        setupViewModels()
+        setupObservers()
+        loadInitialData()
     }
     
-    override fun setupUI() {
-        setupBanner()
-        setupComicCarousel()
-        setupComicList()
-        setupSwipeRefresh()
-        setupHeader()
+    private fun setupViewModels() {
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
     }
     
-    override fun setupObservers() {
-        // 观察轮播图数据
-        viewModel.bannerState.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is Resource.Success -> bannerAdapter.submitList(state.data)
-                is Resource.Error -> showSnackbar(state.message)
-                is Resource.Loading -> {/* 显示加载状态 */}
-                else -> {}
+    private fun setupObservers() {
+        // 观察banner数据
+        viewModel.bannerState.collectLatest { resource ->
+            when (resource) {
+                is Resource.Loading -> showLoading()
+                is Resource.Success -> {
+                    hideLoading()
+                    setupBannerAdapter(resource.data ?: emptyList())
+                }
+                is Resource.Error -> {
+                    hideLoading()
+                    showError(resource.message ?: "加载失败")
+                }
+                is Resource.Idle -> {}
             }
         }
         
-        // 观察漫画推荐数据
-        viewModel.mainListState.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is Resource.Success -> comicCarouselAdapter.submitList(state.data)
-                is Resource.Error -> showSnackbar(state.message)
-                is Resource.Loading -> {/* 显示加载状态 */}
+        // 观察最新漫画列表
+        viewModel.latestListState.collectLatest { resource ->
+            when (resource) {
+                is Resource.Success -> {
+                    setupComicListAdapter(resource.data ?: emptyList())
+                }
+                is Resource.Error -> {
+                    showError(resource.message ?: "加载失败")
+                }
                 else -> {}
-            }
-        }
-        
-        // 观察最新漫画数据
-        viewModel.latestListState.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is Resource.Success -> comicListAdapter.submitList(state.data)
-                is Resource.Error -> showSnackbar(state.message)
-                is Resource.Loading -> binding.swipeRefresh.isRefreshing = true
-                else -> binding.swipeRefresh.isRefreshing = false
             }
         }
         
         // 观察加载更多状态
-        viewModel.loadMoreState.observe(viewLifecycleOwner) { hasMore ->
-            binding.loadMoreProgress.isVisible = hasMore
-            binding.noMoreText.isVisible = !hasMore
+        viewModel.loadMoreState.collectLatest { isLoading ->
+            binding.refreshLayout.finishLoadMore(!isLoading)
         }
     }
     
-    override fun loadData() {
-        viewModel.loadBannerData()
-        viewModel.loadMainList()
-        viewModel.loadLatestList()
-    }
-    
-    private fun setupHeader() {
-        binding.header.apply {
-            setOnSearchClickListener {
-                findNavController().navigate(R.id.action_main_to_search)
-            }
-            setOnMenuClickListener {
-                // 打开侧边菜单或其他功能
-            }
-        }
-    }
-    
-    private fun setupBanner() {
-        bannerAdapter = BannerAdapter { banner ->
-            // 处理轮播图点击
-            navigateToBannerTarget(banner)
-        }
-        
-        binding.bannerViewPager.apply {
-            adapter = bannerAdapter
-            offscreenPageLimit = 1
-            setPageTransformer(ScaleInTransformer())
-            
-            // 自动轮播
-            startAutoScroll(3000L)
-        }
-        
-        // 设置指示器
-        binding.bannerIndicator.setViewPager(binding.bannerViewPager)
-    }
-    
-    private fun setupComicCarousel() {
-        comicCarouselAdapter = ComicCarouselAdapter(
-            onItemClick = { comic ->
-                navigateToComicDetail(comic.id)
+    private fun setupBannerAdapter(banners: List<Banner>) {
+        val bannerAdapter = BannerAdapter(
+            onBannerClick = { banner ->
+                handleBannerClick(banner)
             },
-            onLikeClick = { comic ->
-                handleLikeAction(comic)
-            },
-            onBookmarkClick = { comic ->
-                handleBookmarkAction(comic)
+            onNavItemClick = { navItem ->
+                handleNavItemClick(navItem)
             }
         )
         
-        binding.comicCarousel.apply {
-            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-            adapter = comicCarouselAdapter
-            addItemDecoration(LinearHorizontalSpacingDecoration(16))
-        }
+        binding.bannerRecyclerView.adapter = bannerAdapter
+        bannerAdapter.submitList(banners)
     }
     
-    private fun setupComicList() {
-        comicListAdapter = ComicListAdapter(
-            onItemClick = { comic ->
-                navigateToComicDetail(comic.id)
-            },
-            onLikeClick = { comic ->
-                handleLikeAction(comic)
-            },
-            onBookmarkClick = { comic ->
-                handleBookmarkAction(comic)
-            }
-        )
+    private fun setupComicListAdapter(comics: List<Comic>) {
+        val comicListAdapter = ComicListAdapter { comic ->
+            navigateToComicDetail(comic.id)
+        }
         
-        binding.comicList.apply {
-            layoutManager = GridLayoutManager(requireContext(), 3)
+        binding.comicListRecyclerView.apply {
             adapter = comicListAdapter
-            addItemDecoration(GridSpacingItemDecoration(3, 16, true))
+            layoutManager = GridLayoutManager(requireContext(), 2)
         }
         
-        // 加载更多监听
-        binding.comicList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val layoutManager = recyclerView.layoutManager as GridLayoutManager
-                val visibleItemCount = layoutManager.childCount
-                val totalItemCount = layoutManager.itemCount
-                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-                
-                if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
-                    && firstVisibleItemPosition >= 0
-                    && totalItemCount >= 30
-                ) {
-                    viewModel.loadMoreLatestList()
-                }
-            }
-        })
+        comicListAdapter.submitList(comics)
     }
     
-    private fun setupSwipeRefresh() {
-        binding.swipeRefresh.apply {
-            setColorSchemeResources(R.color.color_primary)
-            setOnRefreshListener {
-                viewModel.refreshAllData()
+    private fun handleBannerClick(banner: Banner) {
+        when (banner.targetType) {
+            BannerTargetType.COMIC -> navigateToComicDetail(banner.id)
+            BannerTargetType.EXTERNAL -> openExternalUrl(banner.targetUrl)
+            else -> {
+                // 处理其他类型的点击
             }
         }
     }
     
-    private fun handleLikeAction(comic: Comic) {
-        if (AuthManager.isLoggedIn()) {
-            viewModel.toggleLike(comic.id)
-        } else {
-            showSnackbar("请先登录")
-            findNavController().navigate(R.id.action_main_to_login)
+    private fun handleNavItemClick(navItem: NavItem) {
+        when (navItem.target) {
+            NavigationTarget.CATEGORIES -> navigateToCategories()
+            NavigationTarget.LIBRARY -> navigateToLibrary()
+            NavigationTarget.GAMES -> navigateToGames()
+            NavigationTarget.MOVIES -> navigateToMovies()
+            else -> {
+                // 处理其他导航目标
+            }
         }
     }
     
-    private fun handleBookmarkAction(comic: Comic) {
-        if (AuthManager.isLoggedIn()) {
-            viewModel.toggleBookmark(comic.id)
-        } else {
-            showSnackbar("请先登录")
-            findNavController().navigate(R.id.action_main_to_login)
-        }
-    }
-    
-    private fun navigateToBannerTarget(banner: Banner) {
-        when (banner.type) {
-            "comic" -> navigateToComicDetail(banner.targetId)
-            "url" -> openWebView(banner.url)
-            "category" -> navigateToCategory(banner.targetId)
-        }
+    private fun loadInitialData() {
+        viewModel.loadInitialData()
     }
     
     private fun navigateToComicDetail(comicId: String) {
-        val direction = MainFragmentDirections.actionMainToComicDetail(comicId)
-        findNavController().navigate(direction)
+        // 使用您已完成的ReadActivity
+        val intent = Intent(requireContext(), ReadActivity::class.java).apply {
+            putExtra("comicId", comicId)
+        }
+        startActivity(intent)
     }
     
-    private fun showSnackbar(message: String) {
-        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+    private fun openExternalUrl(url: String?) {
+        url?.let {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
+            startActivity(intent)
+        }
     }
     
-    override fun onDestroyView() {
-        binding.bannerViewPager.stopAutoScroll()
-        super.onDestroyView()
+    private fun navigateToCategories() {
+        // TODO: 实现分类页面导航
+        Toast.makeText(requireContext(), "跳转到分类", Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun navigateToLibrary() {
+        // TODO: 实现书库页面导航
+        Toast.makeText(requireContext(), "跳转到书库", Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun navigateToGames() {
+        // TODO: 实现游戏页面导航
+        Toast.makeText(requireContext(), "跳转到游戏", Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun navigateToMovies() {
+        // TODO: 实现视频页面导航
+        Toast.makeText(requireContext(), "跳转到视频", Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun showLoading() {
+        binding.progressBar.visibility = View.VISIBLE
+    }
+    
+    private fun hideLoading() {
+        binding.progressBar.visibility = View.GONE
+        binding.refreshLayout.finishRefresh()
+    }
+    
+    private fun showError(message: String) {
+        hideLoading()
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+    
+    // 扩展函数用于收集StateFlow
+    private fun <T> StateFlow<T>.collectLatest(collector: (T) -> Unit) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            collectLatest { collector(it) }
+        }
     }
 }

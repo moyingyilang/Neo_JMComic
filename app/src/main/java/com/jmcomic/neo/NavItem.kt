@@ -1,11 +1,6 @@
+// NavItem.kt - 导航项数据类
 data class NavItem(
-    val iconRes: Int,
-    val labelRes: Int,
-    val target: NavigationTarget,
-    val params: Map<String, String> = emptyMap()
+    @DrawableRes val iconRes: Int,
+    @StringRes val labelRes: Int,
+    val target: NavigationTarget
 )
-
-enum class NavigationTarget {
-    CATEGORIES, CATEGORIES_HOT, CATEGORIES_HANMAN, CATEGORIES_SINGLE, 
-    GAMES, MOVIES, LIBRARY, WEEK
-}

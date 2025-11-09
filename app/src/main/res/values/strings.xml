@@ -1,20 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">漫画阅读器</string>
     
-    <!-- 导航标题 -->
+    <!-- 底部导航标题 -->
     <string name="title_home">首页</string>
-    <string name="title_library">书库</string>
+    <string name="title_categories">分类</string>
+    <string name="title_library">书架</string>
     <string name="title_search">搜索</string>
-    <string name="title_member">我的</string>
-    <string name="title_comic">漫画</string>
-    <string name="title_comic_detail">漫画详情</string>
+    <string name="title_profile">我的</string>
     
-    <!-- 通用文本 -->
-    <string name="loading">加载中...</string>
-    <string name="network_error">网络连接失败</string>
-    <string name="pull_to_load">上拉加载更多</string>
-    <string name="no_more">没有更多了</string>
-    <string name="see_more">查看更多</string>
-    <string name="latest_uploads">最新上传</string>
-    <string name="weekly_update">每周更新</string>
+    <!-- 通用字符串 -->
+    <string name="loading">加载中…</string>
+    <string name="error">出错了</string>
+    <string name="retry">重试</string>
+    <string name="cancel">取消</string>
+    <string name="confirm">确认</string>
+    <string name="ok">确定</string>
 </resources>

@@ -1,14 +1,13 @@
+// MainViewModel.kt - 整合版本
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val comicRepository: ComicRepository,
     private val authManager: AuthManager
 ) : ViewModel() {
     
+    // 使用现有的Resource模式
     private val _bannerState = MutableStateFlow<Resource<List<Banner>>>(Resource.Idle)
     val bannerState: StateFlow<Resource<List<Banner>>> = _bannerState.asStateFlow()
-    
-    private val _mainListState = MutableStateFlow<Resource<List<ComicSection>>>(Resource.Idle)
-    val mainListState: StateFlow<Resource<List<ComicSection>>> = _mainListState.asStateFlow()
     
     private val _latestListState = MutableStateFlow<Resource<List<Comic>>>(Resource.Idle)
     val latestListState: StateFlow<Resource<List<Comic>>> = _latestListState.asStateFlow()
@@ -16,7 +15,7 @@ class MainViewModel @Inject constructor(
     private val _loadMoreState = MutableStateFlow(false)
     val loadMoreState: StateFlow<Boolean> = _loadMoreState.asStateFlow()
     
-    private var currentPage = 0
+    private var currentPage = 1
     private var hasMore = true
     
     init {
@@ -25,7 +24,6 @@ class MainViewModel @Inject constructor(
     
     fun loadInitialData() {
         loadBannerData()
-        loadMainList()
         loadLatestList()
     }
     
@@ -33,22 +31,11 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             _bannerState.value = Resource.Loading
             try {
-                val banners = comicRepository.getBanners()
+                // 使用现有的ComicRepository获取banner数据
+                val banners = comicRepository.fetchCoverAds().getOrElse { emptyList() }
                 _bannerState.value = Resource.Success(banners)
             } catch (e: Exception) {
-                _bannerState.value = Resource.Error(e.message ?: "加载失败")
-            }
-        }
-    }
-    
-    fun loadMainList() {
-        viewModelScope.launch {
-            _mainListState.value = Resource.Loading
-            try {
-                val mainList = comicRepository.getMainList()
-                _mainListState.value = Resource.Success(mainList)
-            } catch (e: Exception) {
-                _mainListState.value = Resource.Error(e.message ?: "加载失败")
+                _bannerState.value = Resource.Error(e.message ?: "Banner加载失败")
             }
         }
     }
@@ -57,32 +44,29 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             _latestListState.value = Resource.Loading
             try {
-                val latestList = comicRepository.getLatestList(page = 0)
+                val latestList = comicRepository.fetchLatestList(page = 1).getOrElse { emptyList() }
                 _latestListState.value = Resource.Success(latestList)
-                currentPage = 0
+                currentPage = 1
                 hasMore = latestList.isNotEmpty()
             } catch (e: Exception) {
-                _latestListState.value = Resource.Error(e.message ?: "加载失败")
+                _latestListState.value = Resource.Error(e.message ?: "列表加载失败")
             }
         }
     }
     
     fun loadMoreLatestList() {
-        if (!hasMore) return
+        if (!hasMore || _loadMoreState.value) return
         
         viewModelScope.launch {
             _loadMoreState.value = true
             try {
                 val nextPage = currentPage + 1
-                val moreList = comicRepository.getLatestList(page = nextPage)
+                val moreList = comicRepository.fetchLatestList(page = nextPage).getOrElse { emptyList() }
                 
-                if (moreList.isNotEmpty()) {
-                    val currentList = (_latestListState.value as? Resource.Success)?.data ?: emptyList()
-                    _latestListState.value = Resource.Success(currentList + moreList)
-                    currentPage = nextPage
-                } else {
-                    hasMore = false
-                }
+                val currentList = (_latestListState.value as? Resource.Success)?.data ?: emptyList()
+                _latestListState.value = Resource.Success(currentList + moreList)
+                currentPage = nextPage
+                hasMore = moreList.isNotEmpty()
             } catch (e: Exception) {
                 // 静默处理加载更多错误
                 Log.e("MainViewModel", "Load more failed", e)
@@ -93,7 +77,7 @@ class MainViewModel @Inject constructor(
     }
     
     fun refreshAllData() {
-        currentPage = 0
+        currentPage = 1
         hasMore = true
         loadInitialData()
     }
@@ -101,11 +85,13 @@ class MainViewModel @Inject constructor(
     fun toggleLike(comicId: String) {
         viewModelScope.launch {
             try {
-                comicRepository.toggleLike(comicId)
-                // 更新本地状态
-                updateComicLikeState(comicId)
+                // 使用现有的喜欢/收藏逻辑
+                val success = comicRepository.toggleLike(comicId)
+                if (success) {
+                    updateComicLikeState(comicId)
+                }
             } catch (e: Exception) {
-                // 处理错误
+                Log.e("MainViewModel", "Toggle like failed", e)
             }
         }
     }
@@ -113,30 +99,33 @@ class MainViewModel @Inject constructor(
     fun toggleBookmark(comicId: String) {
         viewModelScope.launch {
             try {
-                comicRepository.toggleBookmark(comicId)
-                // 更新本地状态
-                updateComicBookmarkState(comicId)
+                val success = comicRepository.toggleBookmark(comicId)
+                if (success) {
+                    updateComicBookmarkState(comicId)
+                }
             } catch (e: Exception) {
-                // 处理错误
+                Log.e("MainViewModel", "Toggle bookmark failed", e)
             }
         }
     }
     
     private fun updateComicLikeState(comicId: String) {
-        // 更新对应漫画的喜欢状态
         val currentList = (_latestListState.value as? Resource.Success)?.data
         currentList?.find { it.id == comicId }?.let { comic ->
-            comic.isLiked = !comic.isLiked
-            _latestListState.value = Resource.Success(currentList)
+            // 更新喜欢状态
+            val updatedComic = comic.copy(isLiked = !comic.isLiked)
+            val updatedList = currentList.map { if (it.id == comicId) updatedComic else it }
+            _latestListState.value = Resource.Success(updatedList)
         }
     }
     
     private fun updateComicBookmarkState(comicId: String) {
-        // 更新对应漫画的收藏状态
         val currentList = (_latestListState.value as? Resource.Success)?.data
         currentList?.find { it.id == comicId }?.let { comic ->
-            comic.isBookmarked = !comic.isBookmarked
-            _latestListState.value = Resource.Success(currentList)
+            // 更新收藏状态
+            val updatedComic = comic.copy(isBookmarked = !comic.isBookmarked)
+            val updatedList = currentList.map { if (it.id == comicId) updatedComic else it }
+            _latestListState.value = Resource.Success(updatedList)
         }
     }
 }

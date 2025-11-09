@@ -1,3 +1,4 @@
+// BannerAdapter.kt - 基于Banner.tsx重写
 class BannerAdapter(
     private val onBannerClick: (Banner) -> Unit,
     private val onNavItemClick: (NavItem) -> Unit
