@@ -1,57 +1,32 @@
-<?xml version='1.0' encoding='utf-8'?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jmcomic.neo">
 
-    <!-- 修改或删除您共享存储空间中的内容 -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-
-    <!-- 读取您共享存储空间中的内容 -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-
-    <!-- 拥有完全的网络访问权限 -->
-    <uses-permission android:name="android.permission.INTERNET"/>
-
-    <!-- 查看网络连接 -->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-
-    <!-- ACCESS_NETWORK_CONDITIONS -->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_CONDITIONS"/>
-
-    <!-- ACCESS_NOTIFICATIONS -->
-    <uses-permission android:name="android.permission.ACCESS_NOTIFICATIONS"/>
-
-    <!-- 从共享存储空间读取用户选择的图片和视频文件 -->
-    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED"/>
-
-    <!-- 从共享存储空间读取视频文件 -->
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
-
-    <!-- 读取共享存储空间中的图片文件 -->
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
-
-    <!-- 从共享存储空间读取音频文件 -->
-    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
+    <!-- 权限声明（按需添加） -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
+        android:name=".MyApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        android:theme="@style/Theme_ComicApp"
+        android:supportsRtl="true">
 
+        <!-- 主入口Activity -->
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true">
-
-            <intent-filter>
-
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
-
-            </intent-filter>
-
+            <<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </</intent-filter>
         </activity>
+
+        <!-- 其他页面Activity（按需添加） -->
+        <activity android:name=".ui.ComicDetailActivity" />
+        <activity android:name=".ui.MoviesPlayerActivity" />
 
     </application>
 
